@@ -10,26 +10,35 @@
 
 #import "BirdsDetailViewController.h"
 
+#import "BirdSightingDataController.h"
+
+#import "BirdSighting.h"
+
+/*
 @interface BirdsMasterViewController () {
     NSMutableArray *_objects;
 }
 @end
-
+*/
+ 
 @implementation BirdsMasterViewController
 
 - (void)awakeFromNib
 {
     [super awakeFromNib];
+    self.dataController = [[BirdSightingDataController alloc] init];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    /*
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
 
     UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
     self.navigationItem.rightBarButtonItem = addButton;
+    */
 }
 
 - (void)didReceiveMemoryWarning
@@ -57,22 +66,32 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return _objects.count;
+    return [self.dataController countOfList];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-
-    NSDate *object = _objects[indexPath.row];
-    cell.textLabel.text = [object description];
+    static NSString *CellIdentifer = @"BirdSightingCell";
+    
+    static NSDateFormatter *formatter = nil;
+    if (formatter == nil){
+        formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateStyle:NSDateFormatterMediumStyle];
+    }
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifer];
+    
+    BirdSighting *sightingAtIndex = [self.dataController objectInListAtIndex:indexPath.row];
+    [[cell textLabel] setText:sightingAtIndex.name];
+    [[cell detailTextLabel] setText:[formatter stringFromDate:(NSDate*)sightingAtIndex.date]];
     return cell;
+
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
-    return YES;
+    return NO;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
